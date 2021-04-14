@@ -24,10 +24,7 @@ Deployment:
 Why vercel?
 As i'm using the nextjs framework, vercel has a great support for this stack, so it is realy easy to setup all things and get all up and running there, even with the CI aproach.
 
-```https://cep-consulting.vercel.com```
-
-But, there is also one instance of the same application on heroku:
-```https://cep-consulting.herokuapp.com```
+https://cep-consulting.vercel.com
 
 
 Production:
