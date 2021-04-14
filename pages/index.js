@@ -1,65 +1,101 @@
-import Head from 'next/head'
-import styles from '../styles/Home.module.css'
+import React, { useState } from 'react';
+import Head from "next/head"
+import {
+    Flex,
+    Box,
+    Heading,
+    FormControl,
+    FormLabel,
+    Input,
+    Button,
+    Alert,
+    AlertIcon,
+    AlertTitle,
+    AlertDescription,
+    CloseButton
+} from "@chakra-ui/react"
+import cep_service_api from "../services/cep-service";
 
-export default function Home() {
-  return (
-    <div className={styles.container}>
-      <Head>
-        <title>Create Next App</title>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
 
-      <main className={styles.main}>
-        <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
-        </h1>
+export default function Login() {
 
-        <p className={styles.description}>
-          Get started by editing{' '}
-          <code className={styles.code}>pages/index.js</code>
-        </p>
+    const [cep, setCep] = useState("")
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState(false)
+    const [cep_data, setCepData] = useState(null)
 
-        <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h3>Documentation &rarr;</h3>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
+    // Hanlde the submit action
+    const handleSubmit = async event => {
+        event.preventDefault();
+        if(error) setError(false)
+        if(cep_data) setCepData(null)
 
-          <a href="https://nextjs.org/learn" className={styles.card}>
-            <h3>Learn &rarr;</h3>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
+        setIsLoading(true)
+        try {
+            const {data} = await cep_service_api.get(cep) // make the request to cep service api
+            setIsLoading(false)
+            setCepData(data)
+        } catch(err) {
+            setIsLoading(false)
 
-          <a
-            href="https://github.com/vercel/next.js/tree/master/examples"
-            className={styles.card}
-          >
-            <h3>Examples &rarr;</h3>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
+            // check the error status code
+            if(err.message.split(" ")[5] == 404) {
+                setError("CEP Inválido")
+            } else {
+                setError("Alguma coisa correu mal, tente novamente.")
+            }
+        }
 
-          <a
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-          >
-            <h3>Deploy &rarr;</h3>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
-        </div>
-      </main>
+    };
 
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <img src="/vercel.svg" alt="Vercel Logo" className={styles.logo} />
-        </a>
-      </footer>
-    </div>
-  )
+    return (
+        <>
+        <Head>
+            <title>Consultas de CEP's</title>
+        </Head>
+        <Flex width="Full" align="center" justifyContent="center" className={"ct"}>
+            <Box p={32} maxWidth="800px" borderWidth={1} borderRadius={10} boxShadow="lg">
+                <Box textAlign="center">
+                    <Heading> Consulta de CEP </Heading>
+                </Box>
+                <Box my={8} textAlign="left">
+                    <form onSubmit={handleSubmit}>
+
+                        <FormControl isRequired>
+                            <FormLabel> CEP </FormLabel>
+                            <Input
+                                type={"number"}
+                                   placeholder="Digite aqui o seu CEP"
+                                   size="lg"
+                                   onChange = {event => setCep(event.currentTarget.value)}
+                                   isRequired={true}
+                                   isDisabled={isLoading}
+                            />
+                        </FormControl>
+
+                        <Button colorScheme="teal" isLoading={isLoading} width="full" mt={4} type="submit" size={"lg"}>
+                           Consultar
+                        </Button>
+
+                        {error && (
+                            <Alert status="error" className={"error-ct"}>
+                                <AlertIcon />
+                                <AlertTitle mr={2}>ooops!</AlertTitle>
+                                <AlertDescription>{error}</AlertDescription>
+                            </Alert>
+                        )}
+                    </form>
+
+                    {cep_data &&(
+                        <div className="cep-data-container">
+                            <code>{JSON.stringify(cep_data)}</code>
+                        </div>
+                        )
+                    }
+
+                </Box>
+            </Box>
+        </Flex>
+        </>
+    );
 }

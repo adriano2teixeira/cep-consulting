@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 html,
 body {
   padding: 0;
@@ -14,3 +18,16 @@ a {
 * {
   box-sizing: border-box;
 }
+
+.ct {
+  margin: 130px
+}
+
+.error-ct  {
+  margin-top: 20px
+}
+
+.cep-data-container {
+ margin-top: 20px
+}
+
